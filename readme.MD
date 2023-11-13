@@ -5,7 +5,7 @@
     Hay varias formas para abrir una consola o shell a un contenedor de docker:
     
     1.1. La primera puede ser a través del visual code con el plugin de docker y le podremos dar directamente a iniciar, dandole click derecho y start.
-        
+        ![Alt text](image-1.png)
     1.2. La segunda forma será con el comando **`docker exec -it *nombredelcontenedor* bash `**
 2. En el contenedor anterior con que opciones tiene que haber sido arrancado para poder interactuar con las entradas y salidas del contenedor.
 
@@ -79,4 +79,15 @@ Supongamos que tienes un sitio web llamado "mi-sitio-web.com" y también tienes 
 
 Podrias guardar la configuración del DNS en un volumen, y lo vincularas con el docker compose, cuando lo hagas aunque borres o crees otro DNS, este siempre se creara igual con el docker compose haciendo que sea muy facil de manejar los archivos desde fuera del contenedor, y además tendremos la certeza de que siempre será la misma configuración salvo que la cambies.
 
-9. 
+9. Añade una zona tiendadeelectronica.int en tu docker DNS que tenga:
+
+    - www a la IP 172.16.0.1
+    ![Alt text](image-3.png)
+    - owncloud sea un CNAME de www
+    ![Alt text](image-4.png)
+    - un registro de texto con el contenido "1234ASDF"
+    ![Alt text](image-5.png)
+    - Comprueba que todo funciona con el comando "dig"
+    - Muestra en los logs que el servicio arranca correctamente
+    ![Alt text](image-6.png)
+    
