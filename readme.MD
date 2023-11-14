@@ -91,3 +91,101 @@ Podrias guardar la configuración del DNS en un volumen, y lo vincularas con el 
     - Muestra en los logs que el servicio arranca correctamente
     ![Alt text](image-6.png)
     
+10. Realiza el apartado 9 en la máquina virtual con DNS
+
+Para hacer un DNS en la máquina virtual, tendremos que cambiar los mismos archivos que en el de Docker, y haremos un **`systemctl restart named.service`**. Una vez hecho todo esto haremos un dig para comprobar todo esto. 
+
+  - www a la IP 172.16.0.1
+  ```
+  asir2@A09equipo05:~$ dig @10.0.9.110 www.tiendadeelectronica.int 
+
+; <<>> DiG 9.18.16-1~deb12u1-Debian <<>> @10.0.9.110 www.tiendadeelectronica.int
+; (1 server found)
+;; global options: +cmd
+;; Got answer:
+;; ->>HEADER<<- opcode: QUERY, status: NOERROR, id: 49112
+;; flags: qr aa rd ra; QUERY: 1, ANSWER: 1, AUTHORITY: 0, ADDITIONAL: 1
+
+;; OPT PSEUDOSECTION:
+; EDNS: version: 0, flags:; udp: 1232
+; COOKIE: ce2a80a384c297be01000000655395dbbd43b2f0e3306ad3 (good)
+;; QUESTION SECTION:
+;www.tiendadeelectronica.int.	IN	A
+
+;; ANSWER SECTION:
+www.tiendadeelectronica.int. 38400 IN	A	172.16.0.1
+
+;; Query time: 4 msec
+;; SERVER: 10.0.9.110#53(10.0.9.110) (UDP)
+;; WHEN: Tue Nov 14 16:44:27 CET 2023
+;; MSG SIZE  rcvd: 100
+
+  ```
+  - owncloud sea un CNAME de www
+  ```
+  asir2@A09equipo05:~$ dig @10.0.9.110 owncloud.tiendadeelectronica.int 
+
+; <<>> DiG 9.18.16-1~deb12u1-Debian <<>> @10.0.9.110 owncloud.tiendadeelectronica.int
+; (1 server found)
+;; global options: +cmd
+;; Got answer:
+;; ->>HEADER<<- opcode: QUERY, status: NOERROR, id: 27292
+;; flags: qr aa rd ra; QUERY: 1, ANSWER: 2, AUTHORITY: 0, ADDITIONAL: 1
+
+;; OPT PSEUDOSECTION:
+; EDNS: version: 0, flags:; udp: 1232
+; COOKIE: 086f7801e5d63a1a0100000065539633d3cad7bc59f22368 (good)
+;; QUESTION SECTION:
+;owncloud.tiendadeelectronica.int. IN	A
+
+;; ANSWER SECTION:
+owncloud.tiendadeelectronica.int. 38400	IN CNAME www.tiendadeelectronica.int.
+www.tiendadeelectronica.int. 38400 IN	A	172.16.0.1
+
+;; Query time: 0 msec
+;; SERVER: 10.0.9.110#53(10.0.9.110) (UDP)
+;; WHEN: Tue Nov 14 16:45:55 CET 2023
+;; MSG SIZE  rcvd: 123
+
+  ```
+  - un registro de texto con el contenido "1234ASDF"
+  ```
+  asir2@A09equipo05:~$ dig @10.0.9.110 texto.tiendadeelectronica.int TXT
+
+; <<>> DiG 9.18.16-1~deb12u1-Debian <<>> @10.0.9.110 texto.tiendadeelectronica.int TXT
+; (1 server found)
+;; global options: +cmd
+;; Got answer:
+;; ->>HEADER<<- opcode: QUERY, status: NOERROR, id: 62813
+;; flags: qr aa rd ra; QUERY: 1, ANSWER: 1, AUTHORITY: 0, ADDITIONAL: 1
+
+;; OPT PSEUDOSECTION:
+; EDNS: version: 0, flags:; udp: 1232
+; COOKIE: 78b68e392086c26901000000655396718d193d1073ce771d (good)
+;; QUESTION SECTION:
+;texto.tiendadeelectronica.int.	IN	TXT
+
+;; ANSWER SECTION:
+texto.tiendadeelectronica.int. 38400 IN	TXT	"1234ASDF"
+
+;; Query time: 0 msec
+;; SERVER: 10.0.9.110#53(10.0.9.110) (UDP)
+;; WHEN: Tue Nov 14 16:46:57 CET 2023
+;; MSG SIZE  rcvd: 107
+
+  ```
+  - Comprueba que todo funciona con el comando "dig"
+  Ya lo hemos hecho todo arriba
+  - Muestra en los logs que el servicio arranca correctamente
+  
+    En la maquina virtual estos seran los logs:
+    ```
+    pruebas@Ubuntupruebas:~$ sudo tail /var/log/syslog | grep named
+    [sudo] contraseña para pruebas: 
+    Nov 14 16:38:44 Ubuntupruebas named[11416]: zone localhost/IN: loaded serial 2
+    Nov 14 16:38:44 Ubuntupruebas named[11416]: zone tiendadeelectronica.int/IN: loaded serial 20231009
+    Nov 14 16:38:44 Ubuntupruebas named[11416]: zone web1asir.int/IN: loaded serial 20231009
+    Nov 14 16:38:44 Ubuntupruebas named[11416]: all zones loaded
+    Nov 14 16:38:44 Ubuntupruebas named[11416]: running
+    Nov 14 16:38:44 Ubuntupruebas named[11416]: managed-keys-zone: No DNSKEY RRSIGs found for '.': success
+    ```
